@@ -13,6 +13,7 @@ public class Order {
     private int orderId;
 
     private LocalDateTime orderTime;
+    @Column(name = "order_total")
     private BigDecimal orderTotal;
 
     @ManyToOne
