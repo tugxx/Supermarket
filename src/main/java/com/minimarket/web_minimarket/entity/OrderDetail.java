@@ -8,7 +8,9 @@ public class OrderDetail {
     @EmbeddedId
     private OrderDetailsID orderDetailsID;
 
+    @Column(name = "quantity")
     private int orderQuantity;
+    @Column(name = "price")
     private double orderPrice;
 
     @ManyToOne

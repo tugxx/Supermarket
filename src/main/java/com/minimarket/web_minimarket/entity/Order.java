@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private int orderId;
 
+    @Column(name = "order_time")
     private LocalDateTime orderTime;
     @Column(name = "order_total")
     private BigDecimal orderTotal;

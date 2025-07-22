@@ -1,47 +1,83 @@
 package com.minimarket.web_minimarket.service;
 
+import com.minimarket.web_minimarket.dto.CategoryResponseDTO;
+import com.minimarket.web_minimarket.dto.ProductRequestDTO;
+import com.minimarket.web_minimarket.dto.ProductResponseDTO;
+import com.minimarket.web_minimarket.dto.SupplierResponseDTO;
 import com.minimarket.web_minimarket.entity.Category;
 import com.minimarket.web_minimarket.entity.Product;
+import com.minimarket.web_minimarket.entity.Supplier;
+import com.minimarket.web_minimarket.mapper.CategoryMapper;
+import com.minimarket.web_minimarket.mapper.ProductMapper;
+import com.minimarket.web_minimarket.mapper.SupplierMapper;
 import com.minimarket.web_minimarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    private SupplierMapper supplierMapper;
+
+    public ProductResponseDTO createProduct(ProductRequestDTO productDTO) {
+        Product product = productMapper.productRequestDTOToProduct(productDTO);
+        Product savedProduct = productRepository.save(product);
+        return productMapper.productToProductResponseDTO(savedProduct);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll().stream().map(productMapper::productToProductResponseDTO).collect(Collectors.toList());
     }
 
-    public Product getProductById(int productId) {
-        return productRepository.findById(productId).orElseThrow(()->new EntityNotFoundException("Product with id: "+productId+" not found"));
+    public ProductResponseDTO getProductById(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(()->new EntityNotFoundException("Product with id: "+productId+" not found"));
+        return productMapper.productToProductResponseDTO(product);
     }
 
-    public Product getProductByName(String productName) {
-        return productRepository.getByProductName(productName).orElseThrow(()->new EntityNotFoundException("Product with name: "+productName+" not found"));
+    public ProductResponseDTO getProductByName(String productName) {
+        Product product = productRepository.getByProductName(productName).orElseThrow(()->new EntityNotFoundException("Product with name: "+productName+" not found"));
+        return  productMapper.productToProductResponseDTO(product);
     }
 
-    public List<Product> getProductsByCategoryId(int categoryId) {
-        return productRepository.getProductsByCategory_categoryId(categoryId);
+    public List<ProductResponseDTO> getProductsByCategoryId(int categoryId) {
+        return productRepository.getProductsByCategory_categoryId(categoryId).stream().map(productMapper::productToProductResponseDTO).collect(Collectors.toList());
     }
 
-    public Category getCategoryByProductId(int productId) {
-        return productRepository.getByCategory_categoryId(productId).orElseThrow(()->new EntityNotFoundException("Category not found"));
+    public CategoryResponseDTO getCategoryByProductId(int productId) {
+        Category category = productRepository.getByCategory_categoryId(productId).orElseThrow(()->new EntityNotFoundException("Category not found"));
+        return categoryMapper.categoryToCategoryResponseDTO(category);
     }
 
-    public Product updateProduct(int productId, Product productDetail) {
-        Product updatedProduct = getProductById(productId);
-        updatedProduct.setProductName(productDetail.getProductName());
-        return productRepository.save(updatedProduct);
+    public List<ProductResponseDTO> getProductsBySupplierId(int supplierId) {
+        List<Product> products = productRepository.getProductsBySupplier_supplierId(supplierId);
+        return products.stream().map(productMapper::productToProductResponseDTO).collect(Collectors.toList());
+    }
+
+    public SupplierResponseDTO getSupplierByProductId(int productId) {
+        Supplier supplier = productRepository.getBySupplier_supplierId(productId).orElseThrow(()->new EntityNotFoundException("Supplier not found"));
+        return supplierMapper.supplierToSupplierResponseDTO(supplier);
+    }
+
+    public ProductResponseDTO updateProduct(int productId, ProductRequestDTO productDetail) {
+        Product existingProduct = productRepository.findById(productId).orElseThrow(()->new EntityNotFoundException("Product not found"));
+        existingProduct.setProductName(productDetail.getProductName());
+        existingProduct.setProductPrice(productDetail.getProductPrice());
+        existingProduct.setProductQuantity(productDetail.getProductQuantity());
+        Product updatedProduct = productRepository.save(existingProduct);
+        return productMapper.productToProductResponseDTO(updatedProduct);
     }
 
     public void deleteProductById(int productId) {

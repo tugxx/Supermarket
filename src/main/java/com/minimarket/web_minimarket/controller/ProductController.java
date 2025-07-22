@@ -1,7 +1,6 @@
 package com.minimarket.web_minimarket.controller;
 
-import com.minimarket.web_minimarket.entity.Category;
-import com.minimarket.web_minimarket.entity.Product;
+import com.minimarket.web_minimarket.dto.*;
 import com.minimarket.web_minimarket.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,39 +15,56 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO productRequest) {
+        ProductResponseDTO createdProduct = productService.createProduct(productRequest);
+        return ResponseEntity.ok(createdProduct);
     }
 
     @GetMapping
-    public List<Product> getProductsByCategoryId(@RequestParam(required = false) Integer categoryId) {
-        if (categoryId != null) {
-            return productService.getProductsByCategoryId(categoryId);
-        }
-        return productService.getAllProducts();
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+        List<ProductResponseDTO> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsByCategoryId(@PathVariable("categoryId") int categoryId) {
+        List<ProductResponseDTO> products = productService.getProductsByCategoryId(categoryId);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/supplier/{supplierId}")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsBySupplierId(@PathVariable("supplierId") int supplierId) {
+        List<ProductResponseDTO> products = productService.getProductsBySupplierId(supplierId);
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable("productId") int productId) {
-        Product product = productService.getProductById(productId);
+    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("productId") int productId) {
+        ProductResponseDTO product = productService.getProductById(productId);
         return ResponseEntity.ok(product);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Product> getProductByName(@RequestParam String productName) {
-        Product product = productService.getProductByName(productName);
+    public ResponseEntity<ProductResponseDTO> getProductByName(@RequestParam String productName) {
+        ProductResponseDTO product = productService.getProductByName(productName);
         return ResponseEntity.ok(product);
     }
 
     @GetMapping("/{productId}/category")
-    public ResponseEntity<Category> getCategoryByProductId(@PathVariable("productId") int productId) {
-        Category category = productService.getCategoryByProductId(productId);
+    public ResponseEntity<CategoryResponseDTO> getCategoryByProductId(@PathVariable("productId") int productId) {
+        CategoryResponseDTO category = productService.getCategoryByProductId(productId);
         return ResponseEntity.ok(category);
     }
 
+    @GetMapping("{productId}/supplier")
+    public ResponseEntity<SupplierResponseDTO> getSupplierByProductId(@PathVariable("productId") int productId) {
+        SupplierResponseDTO supplier = productService.getSupplierByProductId(productId);
+        return ResponseEntity.ok(supplier);
+    }
+
     @PutMapping("/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("productId") int productId, @RequestBody Product productDetail) {
-        Product updatedProduct = productService.updateProduct(productId, productDetail);
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable("productId") int productId, @RequestBody ProductRequestDTO productDetail) {
+        ProductResponseDTO updatedProduct = productService.updateProduct(productId, productDetail);
         return ResponseEntity.ok(updatedProduct);
     }
 

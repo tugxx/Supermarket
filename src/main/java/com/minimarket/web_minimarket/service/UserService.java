@@ -1,51 +1,74 @@
 package com.minimarket.web_minimarket.service;
 
+import com.minimarket.web_minimarket.dto.EmployeeResponseDTO;
+import com.minimarket.web_minimarket.dto.UserRequestDTO;
+import com.minimarket.web_minimarket.dto.UserResponseDTO;
+import com.minimarket.web_minimarket.entity.Employee;
 import com.minimarket.web_minimarket.entity.User;
+import com.minimarket.web_minimarket.mapper.EmployeeMapper;
+import com.minimarket.web_minimarket.mapper.UserMapper;
 import com.minimarket.web_minimarket.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
+
+    public UserResponseDTO createUser(UserRequestDTO userDTO) {
+        User user = userMapper.userRequestDTOToUser(userDTO);
+        User savedUser = userRepository.save(user);
+        return userMapper.userToUserResponseDTO(savedUser);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream().map(userMapper::userToUserResponseDTO).collect(Collectors.toList());
     }
 
-    public User getUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(()->new EntityNotFoundException("User with id: "+userId+" not found"));
+    public List<UserResponseDTO> getUserByRole(String userRole) {
+        return userRepository.getByRole(userRole).stream().map(userMapper::userToUserResponseDTO).collect(Collectors.toList());
     }
 
-    public User getUserByEmail(String userEmail) {
-        return userRepository.getByUserEmail(userEmail).orElseThrow(()->new EntityNotFoundException("User with email: "+userEmail+" not found"));
+    public UserResponseDTO getUserById(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new EntityNotFoundException("User with id: "+userId+" not found"));
+        return userMapper.userToUserResponseDTO(user);
     }
 
-    public User getUserByUsername(String userName) {
-        return userRepository.getByUserName(userName).orElseThrow(()->new EntityNotFoundException("User with name: "+userName+" not found"));
+    public UserResponseDTO getUserByEmail(String userEmail) {
+        User user = userRepository.getByUserEmail(userEmail).orElseThrow(()->new EntityNotFoundException("User with email: "+userEmail+" not found"));
+        return userMapper.userToUserResponseDTO(user);
     }
 
-    public User updateUser(User user) {
-        User updatedUser = userRepository.save(user);
-        updatedUser.setPassword(user.getPassword());
-        return userRepository.save(updatedUser);
+    public UserResponseDTO getUserByUsername(String userName) {
+        User user = userRepository.getByUserName(userName).orElseThrow(()->new EntityNotFoundException("User with name: "+userName+" not found"));
+        return userMapper.userToUserResponseDTO(user);
     }
 
-    public User updateUserById(int userId, User userDetail) {
-        User user = getUserById(userId);
-        user.setUserEmail(userDetail.getUserEmail());
-        return userRepository.save(user);
+    public EmployeeResponseDTO getEmployeeByUserId(int userId) {
+        Employee employee = userRepository.getEmployeeByUserId(userId).orElseThrow(()->new EntityNotFoundException("Employee not found"));
+        return employeeMapper.employeeToEmployeeResponseDTO(employee);
     }
 
-    public void deleteUser(long userId) {
+    public UserResponseDTO updateUserById(int userId, UserRequestDTO userDetail) {
+        User existingUser = userRepository.findById(userId).orElseThrow(()->new EntityNotFoundException("User not found"));
+        existingUser.setUserEmail(userDetail.getUserEmail());
+        existingUser.setPassword(userDetail.getPassword());
+        User updatedUser = userRepository.save(existingUser);
+        return userMapper.userToUserResponseDTO(updatedUser);
+    }
+
+    public void deleteUser(int userId) {
         userRepository.deleteById(userId);
     }
 }

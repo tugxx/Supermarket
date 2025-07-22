@@ -3,6 +3,7 @@ package com.minimarket.web_minimarket.service;
 import com.minimarket.web_minimarket.entity.Order;
 import com.minimarket.web_minimarket.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -7,10 +7,12 @@ import jakarta.persistence.*;
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customer_id")
     private int customerId;
 
+    @Column(name = "customer_name")
     private String customerName;
-    @Column(name = "year_of_existance")
+    @Column(name = "year_of_existence")
     private int customerAge;
 
     @OneToOne
