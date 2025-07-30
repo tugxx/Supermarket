@@ -1,7 +1,7 @@
 package com.minimarket.web_minimarket.dto;
 
 public class EmployeeResponseDTO {
-    private int employeeId;
+    private int id;
     private String name;
     private UserResponseDTO user;
 
@@ -9,21 +9,33 @@ public class EmployeeResponseDTO {
     public EmployeeResponseDTO() {}
 
     public EmployeeResponseDTO(int employeeId, String name, UserResponseDTO user) {
-        this.employeeId = employeeId;
+        this.id = employeeId;
         this.name = name;
         this.user = user;
     }
 
-    // Getters, no setters
-    public int getEmployeeId() {
-        return employeeId;
+    // Getters, setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public UserResponseDTO getUser() {
         return user;
+    }
+
+    public void setUser(UserResponseDTO user) {
+        this.user = user;
     }
 }

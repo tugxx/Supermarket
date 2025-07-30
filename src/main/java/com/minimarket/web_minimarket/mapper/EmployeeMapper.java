@@ -9,12 +9,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface EmployeeMapper {
 
-    @Mapping(target = "employeeId", source = "employeeId")
-    @Mapping(target = "employeeName", source = "employeeName")
+    @Mapping(target = "id", source = "employeeId")
+    @Mapping(target = "name", source = "employeeName")
     @Mapping(target = "user", source = "user")
     EmployeeResponseDTO employeeToEmployeeResponseDTO(Employee employee);
 
-    @Mapping(target = "employeeName", source = "employeeName")
+    @Mapping(target = "employeeName", source = "name")
     @Mapping(target = "user", source = "user")
     Employee employeeRequestDTOToEmployee(EmployeeRequestDTO employeeDTO);
 }

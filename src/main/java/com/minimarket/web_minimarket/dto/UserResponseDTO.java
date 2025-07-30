@@ -32,4 +32,20 @@ public class UserResponseDTO {
     public String getUserName() {
         return userName;
     }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

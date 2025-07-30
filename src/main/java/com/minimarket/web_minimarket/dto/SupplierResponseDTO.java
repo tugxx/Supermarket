@@ -14,7 +14,7 @@ public class SupplierResponseDTO {
         this.supplierName = supplierName;
     }
 
-    // Getters, not setters
+    // Getters, setters
     public String getSupplierContact() {
         return supplierContact;
     }
@@ -25,5 +25,17 @@ public class SupplierResponseDTO {
 
     public String getSupplierName() {
         return supplierName;
+    }
+
+    public void setSupplierContact(String supplierContact) {
+        this.supplierContact = supplierContact;
+    }
+
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 }

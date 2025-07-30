@@ -47,7 +47,7 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO getEmployeeByUserId(int userId) {
-        Employee employee = employeeRepository.getByUserId(userId).orElseThrow(()->new EntityNotFoundException("No employee with user id:"+userId));
+        Employee employee = employeeRepository.getByUser_UserId(userId).orElseThrow(()->new EntityNotFoundException("No employee with user id:"+userId));
         return employeeMapper.employeeToEmployeeResponseDTO(employee);
     }
 
@@ -58,7 +58,7 @@ public class EmployeeService {
 
     public EmployeeResponseDTO updateEmployee(int employeeId, EmployeeRequestDTO employeeDetail) {
         Employee existingEmployee = employeeRepository.findById(employeeId).orElseThrow(()->new EntityNotFoundException("Employee not found"));
-        existingEmployee.setEmployeeName(employeeDetail.getEmployeeName());
+        existingEmployee.setEmployeeName(employeeDetail.getName());
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
         return employeeMapper.employeeToEmployeeResponseDTO(updatedEmployee);
     }

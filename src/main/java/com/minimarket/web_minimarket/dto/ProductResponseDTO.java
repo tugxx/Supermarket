@@ -25,7 +25,7 @@ public class ProductResponseDTO {
         this.supplier = supplier;
     }
 
-    // Getters, not setters
+    // Getters, setters
     public CategoryResponseDTO getCategory() {
         return category;
     }
@@ -48,5 +48,29 @@ public class ProductResponseDTO {
 
     public SupplierResponseDTO getSupplier() {
         return supplier;
+    }
+
+    public void setCategory(CategoryResponseDTO category) {
+        this.category = category;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public void setProductQuantity(int productQuantity) {
+        this.productQuantity = productQuantity;
+    }
+
+    public void setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    public void setSupplier(SupplierResponseDTO supplier) {
+        this.supplier = supplier;
     }
 }

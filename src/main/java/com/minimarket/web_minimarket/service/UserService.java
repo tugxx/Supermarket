@@ -37,7 +37,7 @@ public class UserService {
     }
 
     public List<UserResponseDTO> getUserByRole(String userRole) {
-        return userRepository.getByRole(userRole).stream().map(userMapper::userToUserResponseDTO).collect(Collectors.toList());
+        return userRepository.getByUserRole(userRole).stream().map(userMapper::userToUserResponseDTO).collect(Collectors.toList());
     }
 
     public UserResponseDTO getUserById(int userId) {

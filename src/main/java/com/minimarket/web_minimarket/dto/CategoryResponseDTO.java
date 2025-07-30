@@ -12,12 +12,20 @@ public class CategoryResponseDTO {
         this.categoryName = categoryName;
     }
 
-    // Getters, no setters
+    // Getters, setters
     public String getCategoryName() {
         return categoryName;
     }
 
     public int getCategoryId() {
         return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
