@@ -27,30 +27,30 @@ public class CategoryService { // Call function from CategoryRepository
 
     // Create a new category
     public CategoryResponseDTO createCategory(CategoryRequestDTO categoryDTO) {
-        Category category = categoryMapper.categoryRequestDTOToCategory(categoryDTO);
+        Category category = categoryMapper.categoryRequestToCategory(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
-        return categoryMapper.categoryToCategoryResponseDTO(savedCategory);
+        return categoryMapper.categoryToCategoryResponse(savedCategory);
     }
 
     // Get all categories
     public List<CategoryResponseDTO> getAllCategories() {
-        return categoryRepository.findAll().stream().map(categoryMapper::categoryToCategoryResponseDTO).collect(Collectors.toList());
+        return categoryRepository.findAll().stream().map(categoryMapper::categoryToCategoryResponse).collect(Collectors.toList());
     }
 
     // Get a category by ID
     public CategoryResponseDTO getCategoryById(int categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(()->new EntityNotFoundException("Category not found"));
-        return categoryMapper.categoryToCategoryResponseDTO(category);
+        return categoryMapper.categoryToCategoryResponse(category);
     }
 
     // Get category by name
     public CategoryResponseDTO getCategoryByName(String categoryName) {
         Category category = categoryRepository.getByCategoryName(categoryName).orElseThrow(()->new EntityNotFoundException("Category not found"));
-        return categoryMapper.categoryToCategoryResponseDTO(category);
+        return categoryMapper.categoryToCategoryResponse(category);
     }
 
     public List<ProductResponseDTO> getProductsByCategoryId(int categoryId) {
-        return categoryRepository.getProductsByCategoryId(categoryId).stream().map(productMapper::productToProductResponseDTO).collect(Collectors.toList());
+        return categoryRepository.getProductsByCategoryId(categoryId).stream().map(productMapper::productToProductResponse).collect(Collectors.toList());
     }
 
     // Update a category
@@ -58,7 +58,7 @@ public class CategoryService { // Call function from CategoryRepository
         Category existingCategory = categoryRepository.findById(categoryId).orElseThrow(()->new EntityNotFoundException("Category not found"));
         existingCategory.setCategoryName(categoryDetails.getCategoryName()); // update only the fields you want to change
         Category updatedCategory = categoryRepository.save(existingCategory);
-        return categoryMapper.categoryToCategoryResponseDTO(updatedCategory);
+        return categoryMapper.categoryToCategoryResponse(updatedCategory);
     }
 
     // Delete a category

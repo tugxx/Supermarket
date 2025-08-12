@@ -2,10 +2,7 @@ package com.minimarket.web_minimarket.controller;
 
 import com.minimarket.web_minimarket.dto.EmployeeRequestDTO;
 import com.minimarket.web_minimarket.dto.EmployeeResponseDTO;
-import com.minimarket.web_minimarket.dto.UserRequestDTO;
 import com.minimarket.web_minimarket.dto.UserResponseDTO;
-import com.minimarket.web_minimarket.entity.Employee;
-import com.minimarket.web_minimarket.entity.User;
 import com.minimarket.web_minimarket.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

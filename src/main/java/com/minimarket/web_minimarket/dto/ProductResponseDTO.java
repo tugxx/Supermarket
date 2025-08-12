@@ -1,8 +1,5 @@
 package com.minimarket.web_minimarket.dto;
 
-import com.minimarket.web_minimarket.entity.Category;
-import com.minimarket.web_minimarket.entity.Supplier;
-
 import java.math.BigDecimal;
 
 public class ProductResponseDTO {

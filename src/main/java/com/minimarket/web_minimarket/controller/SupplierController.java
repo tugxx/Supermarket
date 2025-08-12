@@ -1,7 +1,8 @@
 package com.minimarket.web_minimarket.controller;
 
-import com.minimarket.web_minimarket.entity.Product;
-import com.minimarket.web_minimarket.entity.Supplier;
+import com.minimarket.web_minimarket.dto.ProductResponseDTO;
+import com.minimarket.web_minimarket.dto.SupplierRequestDTO;
+import com.minimarket.web_minimarket.dto.SupplierResponseDTO;
 import com.minimarket.web_minimarket.service.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,35 +17,38 @@ public class SupplierController {
     private SupplierService supplierService;
 
     @PostMapping
-    public Supplier createSupplier(@RequestBody Supplier supplier) {
-        return supplierService.createSupplier(supplier);
+    public ResponseEntity<SupplierResponseDTO> createSupplier(@RequestBody SupplierRequestDTO supplierRequest) {
+        SupplierResponseDTO createdSupplier = supplierService.createSupplier(supplierRequest);
+        return ResponseEntity.ok(createdSupplier);
     }
 
     @GetMapping
-    public List<Supplier> getAllSuppliers() {
-        return supplierService.getAllSuppliers();
+    public ResponseEntity<List<SupplierResponseDTO>> getAllSuppliers() {
+        List<SupplierResponseDTO> suppliers = supplierService.getAllSuppliers();
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{supplierId}")
-    public ResponseEntity<Supplier> getSupplierById(@PathVariable("supplierId") int supplierId) {
-        Supplier supplier = supplierService.getSupplierById(supplierId);
+    public ResponseEntity<SupplierResponseDTO> getSupplierById(@PathVariable("supplierId") int supplierId) {
+        SupplierResponseDTO supplier = supplierService.getSupplierById(supplierId);
         return ResponseEntity.ok(supplier);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Supplier> getSupplierByName(@RequestParam String supplierName) {
-        Supplier supplier = supplierService.getSupplierByName(supplierName);
+    public ResponseEntity<SupplierResponseDTO> getSupplierByName(@RequestParam String supplierName) {
+        SupplierResponseDTO supplier = supplierService.getSupplierByName(supplierName);
         return ResponseEntity.ok(supplier);
     }
 
     @GetMapping("/{supplierId}/products")
-    public List<Product> getProductsBySupplierId(@PathVariable int supplierId) {
-        return supplierService.getProductsBySupplierId(supplierId);
+    public ResponseEntity<List<ProductResponseDTO>> getProductsBySupplierId(@PathVariable int supplierId) {
+        List<ProductResponseDTO> products = supplierService.getProductsBySupplierId(supplierId);
+        return ResponseEntity.ok(products);
     }
 
     @PutMapping("/{supplierId}")
-    public ResponseEntity<Supplier> updateSupplier(@PathVariable("supplierId") int supplierId, @RequestParam Supplier supplierDetail) {
-        Supplier updatedSupplier = supplierService.updateSupplier(supplierId, supplierDetail);
+    public ResponseEntity<SupplierResponseDTO> updateSupplier(@PathVariable("supplierId") int supplierId, @RequestBody SupplierRequestDTO supplierDetail) {
+        SupplierResponseDTO updatedSupplier = supplierService.updateSupplier(supplierId, supplierDetail);
         return ResponseEntity.ok(updatedSupplier);
     }
 

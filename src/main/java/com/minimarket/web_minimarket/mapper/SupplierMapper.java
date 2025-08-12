@@ -12,9 +12,9 @@ public interface SupplierMapper {
     @Mapping(target = "supplierId", source = "supplierId")
     @Mapping(target = "supplierName", source = "supplierName")
     @Mapping(target = "supplierContact", source = "supplierContact")
-    SupplierResponseDTO supplierToSupplierResponseDTO(Supplier supplier);
+    SupplierResponseDTO supplierToSupplierResponse(Supplier supplier);
 
     @Mapping(target = "supplierName", source = "supplierName")
     @Mapping(target = "supplierContact", source = "supplierContact")
-    Supplier supplierRequestDTOToSupplier(SupplierRequestDTO supplierDTO);
+    Supplier supplierRequestToSupplier(SupplierRequestDTO supplierDTO);
 }

@@ -13,11 +13,11 @@ public interface UserMapper {
     @Mapping(target = "userName", source = "userName")
     @Mapping(target = "userEmail", source = "userEmail")
     @Mapping(target = "role", source = "userRole")
-    UserResponseDTO userToUserResponseDTO(User user);
+    UserResponseDTO userToUserResponse(User user);
 
     @Mapping(target = "userName", source = "userName")
     @Mapping(target = "userEmail", source = "userEmail")
     @Mapping(target = "password", source = "password")
     @Mapping(target = "userRole", source = "role")
-    User userRequestDTOToUser(UserRequestDTO userDTO);
+    User userRequestToUser(UserRequestDTO userDTO);
 }

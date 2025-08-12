@@ -1,5 +1,7 @@
 package com.minimarket.web_minimarket.controller;
 
+import com.minimarket.web_minimarket.dto.OrderDetailRequestDTO;
+import com.minimarket.web_minimarket.dto.OrderDetailResponseDTO;
 import com.minimarket.web_minimarket.entity.OrderDetail;
 import com.minimarket.web_minimarket.entity.OrderDetailsID;
 import com.minimarket.web_minimarket.service.OrderDetailService;
@@ -16,47 +18,49 @@ public class OrderDetailController {
     private OrderDetailService orderDetailService;
 
     @PostMapping
-    public OrderDetail createOrderDetail(@RequestBody OrderDetail orderDetail) {
-        return orderDetailService.createOrderDetail(orderDetail);
+    public ResponseEntity<OrderDetailResponseDTO> createOrderDetail(@RequestBody OrderDetailRequestDTO orderDetailRequest) {
+        OrderDetailResponseDTO createdOrderDetail = orderDetailService.createOrderDetail(orderDetailRequest);
+        return ResponseEntity.ok(createdOrderDetail);
     }
 
     @GetMapping
-    public List<OrderDetail> getAllOrderDetails() {
-        return orderDetailService.getAllOrderDetails();
+    public ResponseEntity<List<OrderDetailResponseDTO>> getAllOrderDetails() {
+        List<OrderDetailResponseDTO> orderDetails = orderDetailService.getAllOrderDetails();
+        return ResponseEntity.ok(orderDetails);
     }
 
     @GetMapping("/{orderId}/{productId}")
-    public ResponseEntity<OrderDetail> getOrderDetailById(@PathVariable("orderId") int orderId, @PathVariable("productId") int productId) {
+    public ResponseEntity<OrderDetailResponseDTO> getOrderDetailById(@PathVariable("orderId") int orderId, @PathVariable("productId") int productId) {
         OrderDetailsID orderDetailsID = new OrderDetailsID(orderId, productId);
-        OrderDetail orderDetail = orderDetailService.getOrderDetailById(orderDetailsID);
+        OrderDetailResponseDTO orderDetail = orderDetailService.getOrderDetailById(orderDetailsID);
         return ResponseEntity.ok(orderDetail);
     }
 
     @GetMapping("/by-order-product")
-    public ResponseEntity<OrderDetail> getByOrderAndProduct(@RequestParam int orderId, @RequestParam int productId) {
-        OrderDetail orderDetail = orderDetailService.getOrderDetailByOrderIdAndProductId(orderId, productId);
+    public ResponseEntity<OrderDetailResponseDTO> getByOrderAndProduct(@RequestParam int orderId, @RequestParam int productId) {
+        OrderDetailResponseDTO orderDetail = orderDetailService.getOrderDetailByOrderIdAndProductId(orderId, productId);
         return ResponseEntity.ok(orderDetail);
     }
 
     @GetMapping("/by-order/{orderId}")
-    public List<OrderDetail> getByOrder(@PathVariable("orderId") int orderId) {
+    public List<OrderDetailResponseDTO> getByOrder(@PathVariable("orderId") int orderId) {
         return orderDetailService.getOrderDetailByOrderId(orderId);
     }
 
     @GetMapping("/by-product/{productId}")
-    public List<OrderDetail> getByProduct(@PathVariable("productId") int productId) {
+    public List<OrderDetailResponseDTO> getByProduct(@PathVariable("productId") int productId) {
         return orderDetailService.getOrderDetailByProductId(productId);
     }
 
     @PutMapping("/{orderId}/{productId}")
-    public ResponseEntity<OrderDetail> updateOrderDetailByPath(@PathVariable("orderId") int orderId, @PathVariable("productId") int productId, @RequestBody OrderDetail orderDetailDetail) {
-        OrderDetail updatedOrderDetail = orderDetailService.updateOrderDetail(orderId, productId, orderDetailDetail);
+    public ResponseEntity<OrderDetailResponseDTO> updateOrderDetailByPath(@PathVariable("orderId") int orderId, @PathVariable("productId") int productId, @RequestBody OrderDetail orderDetailDetail) {
+        OrderDetailResponseDTO updatedOrderDetail = orderDetailService.updateOrderDetail(orderId, productId, orderDetailDetail);
         return ResponseEntity.ok(updatedOrderDetail);
     }
 
     @PutMapping("/by-order-product")
-    public ResponseEntity<OrderDetail> updateOrderDetailByQuery(@RequestParam int orderId, @RequestParam int productId, @RequestBody OrderDetail orderDetailDetail) {
-        OrderDetail updatedOrderDetail = orderDetailService.updateOrderDetail(orderId, productId, orderDetailDetail);
+    public ResponseEntity<OrderDetailResponseDTO> updateOrderDetailByQuery(@RequestParam int orderId, @RequestParam int productId, @RequestBody OrderDetail orderDetailDetail) {
+        OrderDetailResponseDTO updatedOrderDetail = orderDetailService.updateOrderDetail(orderId, productId, orderDetailDetail);
         return ResponseEntity.ok(updatedOrderDetail);
     }
 

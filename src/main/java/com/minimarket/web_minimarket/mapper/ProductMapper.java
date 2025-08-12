@@ -18,19 +18,19 @@ public interface ProductMapper {
     @Mapping(target = "productQuantity", source = "productQuantity")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "supplier", source = "supplier")
-    ProductResponseDTO productToProductResponseDTO(Product product);
+    ProductResponseDTO productToProductResponse(Product product);
 
     @Mapping(target = "productName", source = "productName")
     @Mapping(target = "productPrice", source = "productPrice")
     @Mapping(target = "productQuantity", source = "productQuantity")
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "supplier", ignore = true)
-    Product productRequestDTOToProduct(ProductRequestDTO productDTO);
+    Product productRequestToProduct(ProductRequestDTO productDTO);
 
     @AfterMapping
     default void linkCategoryAndSupplier(ProductRequestDTO productDTO, @MappingTarget Product product, @Context CategoryRepository categoryRepository, @Context SupplierRepository supplierRepository) {
         // Load real Category
-        Category category = categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(()->new RuntimeException(("Category not found: "+productDTO.getCategoryId())));
+        Category category = categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(()->new RuntimeException("Category not found: "+productDTO.getCategoryId()));
         product.setCategory(category);
 
         // Load real Supplier

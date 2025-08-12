@@ -1,6 +1,10 @@
 package com.minimarket.web_minimarket.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "order_details")
@@ -9,24 +13,31 @@ public class OrderDetail {
     private OrderDetailsID orderDetailsID;
 
     @Column(name = "quantity")
+    @NotNull(message = "Quantity cannot be null")
+    @Positive(message = "Quantity must be positive")
     private int orderQuantity;
+
     @Column(name = "price")
-    private double orderPrice;
+    @NotNull(message = "Price cannot be null")
+    @Positive(message = "Price must be positive")
+    private BigDecimal orderPrice;
 
     @ManyToOne
     @MapsId("orderId")
     @JoinColumn(name = "order_id")
+    @NotNull(message = "Order cannot be null")
     private Order order;
 
     @ManyToOne
     @MapsId("productId")
     @JoinColumn(name = "product_id")
+    @NotNull(message = "Product cannot be null")
     private Product product;
 
     // Constructors
     public OrderDetail() {}
 
-    public OrderDetail(OrderDetailsID orderDetailsID, int orderQuantity, double orderPrice, Order order, Product product) {
+    public OrderDetail(OrderDetailsID orderDetailsID, int orderQuantity, BigDecimal orderPrice, Order order, Product product) {
         this.orderDetailsID = orderDetailsID;
         this.orderQuantity = orderQuantity;
         this.orderPrice = orderPrice;
@@ -51,11 +62,11 @@ public class OrderDetail {
         this.orderQuantity = orderQuantity;
     }
 
-    public double getOrderPrice() {
+    public BigDecimal getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(double orderPrice) {
+    public void setOrderPrice(BigDecimal orderPrice) {
         this.orderPrice = orderPrice;
     }
 
