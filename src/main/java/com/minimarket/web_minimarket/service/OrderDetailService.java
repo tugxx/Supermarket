@@ -6,8 +6,9 @@ import com.minimarket.web_minimarket.entity.OrderDetail;
 import com.minimarket.web_minimarket.entity.OrderDetailsID;
 import com.minimarket.web_minimarket.mapper.OrderDetailMapper;
 import com.minimarket.web_minimarket.repository.OrderDetailRepository;
+import com.minimarket.web_minimarket.repository.OrderRepository;
+import com.minimarket.web_minimarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +16,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderDetailService {
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final OrderDetailMapper orderDetailMapper;
 
-    @Autowired
-    private OrderDetailMapper orderDetailMapper;
-
+    public OrderDetailService(OrderDetailMapper orderDetailMapper, OrderDetailRepository orderDetailRepository, OrderRepository orderRepository, ProductRepository productRepository) {
+        this.orderDetailMapper = orderDetailMapper;
+        this.orderDetailRepository = orderDetailRepository;
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+    }
     public OrderDetailResponseDTO createOrderDetail(OrderDetailRequestDTO orderDetailDTO) {
-        OrderDetail orderDetail = orderDetailMapper.orderDetailRequestToOrderDetail(orderDetailDTO);
+        OrderDetail orderDetail = orderDetailMapper.orderDetailRequestToOrderDetail(orderDetailDTO, productRepository);
         OrderDetail savedOrderDetail = orderDetailRepository.save(orderDetail);
         return orderDetailMapper.orderDetailToOrderDetailResponse(savedOrderDetail);
     }

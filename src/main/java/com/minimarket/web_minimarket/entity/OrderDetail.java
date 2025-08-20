@@ -85,4 +85,16 @@ public class OrderDetail {
     public void setProduct(Product product) {
         this.product = product;
     }
+
+
+    @Override
+    public String toString() {
+        return "OrderDetail{" +
+                "orderDetailsID=" + orderDetailsID +
+                ", orderQuantity=" + orderQuantity +
+                ", orderPrice=" + orderPrice +
+                ", orderId=" + (order != null ? order.getOrderId() : null) +
+                ", \n\tproduct=" + product +
+                "}";
+    }
 }

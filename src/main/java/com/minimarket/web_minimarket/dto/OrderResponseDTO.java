@@ -1,6 +1,5 @@
 package com.minimarket.web_minimarket.dto;
 
-import com.minimarket.web_minimarket.entity.Customer;
 import com.minimarket.web_minimarket.entity.OrderStatus;
 
 import java.math.BigDecimal;
@@ -74,5 +73,18 @@ public class OrderResponseDTO {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+
+    @Override
+    public String toString() {
+        return "OrderResponseDTO{" +
+                "customerId=" + customerId +
+                ", orderId=" + orderId +
+                ", orderTime=" + orderTime +
+                ", orderTotal=" + orderTotal +
+                ", status=" + status +
+                ", \n\torderDetails=" + orderDetails +
+                '}';
     }
 }

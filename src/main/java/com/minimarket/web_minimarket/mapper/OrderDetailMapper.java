@@ -5,6 +5,7 @@ import com.minimarket.web_minimarket.dto.OrderDetailResponseDTO;
 import com.minimarket.web_minimarket.entity.Order;
 import com.minimarket.web_minimarket.entity.OrderDetail;
 import com.minimarket.web_minimarket.entity.Product;
+import com.minimarket.web_minimarket.exception.ProductNotFoundException;
 import com.minimarket.web_minimarket.repository.OrderRepository;
 import com.minimarket.web_minimarket.repository.ProductRepository;
 import org.mapstruct.*;
@@ -25,14 +26,11 @@ public interface OrderDetailMapper {
     @Mapping(target = "orderPrice", source = "orderPrice")
     @Mapping(target = "order", ignore = true)
     @Mapping(target = "product", ignore = true)
-    OrderDetail orderDetailRequestToOrderDetail(OrderDetailRequestDTO orderDetailDTO);
+    OrderDetail orderDetailRequestToOrderDetail(OrderDetailRequestDTO orderDetailRequest, @Context ProductRepository productRepository);
 
     @AfterMapping
-    default void linkOrderAndProduct(OrderDetailRequestDTO orderDetailDTO, @MappingTarget OrderDetail orderDetail, @Context OrderRepository orderRepository, @Context ProductRepository productRepository) {
-        Order order = orderRepository.findById(orderDetailDTO.getOrderId()).orElseThrow(()->new RuntimeException("Order not found: "+orderDetailDTO.getOrderId()));
-        orderDetail.setOrder(order);
-
-        Product product = productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(()->new RuntimeException("Product not found: "+orderDetailDTO.getProductId()));
+    default void linkProduct(OrderDetailRequestDTO orderDetailRequest, @MappingTarget OrderDetail orderDetail, @Context ProductRepository productRepository) {
+        Product product = productRepository.findById(orderDetailRequest.getProductId()).orElseThrow(()->new ProductNotFoundException("Product not found: "+orderDetailRequest.getProductId()));
         orderDetail.setProduct(product);
     }
 }

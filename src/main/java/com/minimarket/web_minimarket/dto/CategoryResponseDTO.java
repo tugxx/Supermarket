@@ -28,4 +28,13 @@ public class CategoryResponseDTO {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
+
+    @Override
+    public String toString() {
+        return "CategoryResponseDTO{" +
+                "categoryId=" + categoryId +
+                ", categoryName='" + categoryName + '\'' +
+                '}';
+    }
 }

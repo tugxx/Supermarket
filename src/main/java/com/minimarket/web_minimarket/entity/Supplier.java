@@ -54,4 +54,14 @@ public class Supplier {
     public void setSupplierName(String supplierName) {
         this.supplierName = supplierName;
     }
+
+
+    @Override
+    public String toString() {
+        return "Supplier{" +
+                "supplierContact='" + supplierContact + '\'' +
+                ", supplierId=" + supplierId +
+                ", supplierName='" + supplierName + '\'' +
+                '}';
+    }
 }

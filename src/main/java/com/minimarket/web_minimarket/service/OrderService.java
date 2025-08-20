@@ -14,11 +14,15 @@ import com.minimarket.web_minimarket.repository.OrderRepository;
 import com.minimarket.web_minimarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,21 +43,22 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO orderRequest) {
-        Order order = orderMapper.orderRequestToOrder(orderRequest);
+        Order order = orderMapper.orderRequestToOrder(orderRequest, customerRepository, productRepository, orderDetailMapper);
 
         List<OrderDetail> orderDetails = order.getOrderDetails();
         if (orderDetails == null || orderDetails.isEmpty()) {
             throw new IllegalArgumentException("Order must contain at least 1 item");
         }
+
         for (OrderDetail orderDetail : orderDetails) {
             Product product = productRepository.findById(orderDetail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + orderDetail.getProduct().getProductId()));
 
             if (product.getProductQuantity() < orderDetail.getOrderQuantity()) {
                 throw new InsufficientStockException("Insufficient stock for product: " + product.getProductName());
             }
-
             product.setProductQuantity(product.getProductQuantity() - orderDetail.getOrderQuantity());
             orderDetail.setOrderPrice(product.getProductPrice().multiply(BigDecimal.valueOf(orderDetail.getOrderQuantity())));
+            orderDetail.setOrder(order); // 🔥 important: set associations so MapsId works
             productRepository.save(product);
         }
 
@@ -68,21 +73,31 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING);
 
         Order savedOrder = orderRepository.save(order);
-        return orderMapper.orderToOrderResponse(savedOrder);
+        return orderMapper.orderToOrderResponse(savedOrder, orderDetailMapper);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::orderToOrderResponse).collect(Collectors.toList());
+        List<Order> orders = orderRepository.findAll();
+        if (orders.isEmpty()) {
+            throw new EntityNotFoundException("No orders found");
+        }
+        return orders.stream().map(order -> orderMapper.orderToOrderResponse(order, orderDetailMapper)).collect(Collectors.toList());
     }
 
     public List<OrderResponseDTO> getOrdersByCustomerId(Integer customerId) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException("Customer not found: " + customerId));
+
         List<Order> orders = orderRepository.getByCustomer_CustomerId(customerId);
-        return orders.stream().map(orderMapper::orderToOrderResponse).collect(Collectors.toList());
+        if (orders.isEmpty()) {
+            throw new EntityNotFoundException("No orders found for customer with id: " + customerId);
+        }
+
+        return orders.stream().map(order -> orderMapper.orderToOrderResponse(order, orderDetailMapper)).collect(Collectors.toList());
     }
 
     public OrderResponseDTO getOrderById(int orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()->new EntityNotFoundException("Order with id: "+orderId+" not found"));
-        return orderMapper.orderToOrderResponse(order);
+        Order order = orderRepository.findById(orderId).orElseThrow(()->new OrderNotFoundException("Order with id: "+orderId+" not found"));
+        return orderMapper.orderToOrderResponse(order, orderDetailMapper);
     }
 
     @Transactional
@@ -107,7 +122,7 @@ public class OrderService {
         }
 
         // Map DTO to entity
-        Order updatedOrder = orderMapper.orderRequestToOrder(orderRequest);
+        Order updatedOrder = orderMapper.orderRequestToOrder(orderRequest, customerRepository, productRepository, orderDetailMapper);
         updatedOrder.setOrderId(orderId);
 
         // Validate and update stock for new OrderDetails
@@ -116,13 +131,14 @@ public class OrderService {
             throw new IllegalArgumentException("Order must contain at least 1 item");
         }
 
-        for (OrderDetail orderdetail : newOrderDetails) {
-            Product product = productRepository.findById(orderdetail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + orderdetail.getProduct().getProductId()));
-            if (product.getProductQuantity() < orderdetail.getOrderQuantity()) {
+        for (OrderDetail orderDetail : newOrderDetails) {
+            Product product = productRepository.findById(orderDetail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + orderDetail.getProduct().getProductId()));
+            if (product.getProductQuantity() < orderDetail.getOrderQuantity()) {
                 throw new InsufficientStockException("Insufficient stock for product: " + product.getProductName());
             }
-            product.setProductQuantity(product.getProductQuantity() - orderdetail.getOrderQuantity());
-            orderdetail.setOrderPrice(product.getProductPrice().multiply(BigDecimal.valueOf(orderdetail.getOrderQuantity())));
+            product.setProductQuantity(product.getProductQuantity() - orderDetail.getOrderQuantity());
+            orderDetail.setOrderPrice(product.getProductPrice().multiply(BigDecimal.valueOf(orderDetail.getOrderQuantity())));
+            orderDetail.setOrder(updatedOrder);
             productRepository.save(product);
         }
 
@@ -138,7 +154,7 @@ public class OrderService {
         updatedOrder.setStatus(OrderStatus.PENDING);
 
         Order savedOrder = orderRepository.save(updatedOrder);
-        return orderMapper.orderToOrderResponse(savedOrder);
+        return orderMapper.orderToOrderResponse(savedOrder, orderDetailMapper);
     }
 
     @Transactional
@@ -155,13 +171,55 @@ public class OrderService {
 
         // Restore product stock for each OrderDetail
         List<OrderDetail> orderDetails = order.getOrderDetails();
-        for (OrderDetail detail : orderDetails) {
-            Product product = productRepository.findById(detail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + detail.getProduct().getProductId()));
-            product.setProductQuantity(product.getProductQuantity() + detail.getOrderQuantity());
-            productRepository.save(product);
+        Set<Integer> productIds = orderDetails.stream().map(orderDetail -> orderDetail.getProduct().getProductId()).collect(Collectors.toSet());
+        Map<Integer, Product> productMap = productIds.stream().map(productRepository::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toMap(Product::getProductId, product -> product));
+
+        for (OrderDetail orderDetail : orderDetails) {
+            Product product = productMap.get(orderDetail.getProduct().getProductId());
+            if (product == null) {
+                throw new ProductNotFoundException("Product not found: " + orderDetail.getProduct().getProductId());
+            }
+
+            product.setProductQuantity(product.getProductQuantity() + orderDetail.getOrderQuantity());
         }
 
-        order.setStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
+        productRepository.saveAll(productMap.values());
+
+        orderRepository.delete(order);
+
+//        for (OrderDetail detail : orderDetails) {
+//            Product product = productRepository.findById(detail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + detail.getProduct().getProductId()));
+//            product.setProductQuantity(product.getProductQuantity() + detail.getOrderQuantity());
+//            productRepository.save(product);
+//        }
+//
+//        order.setStatus(OrderStatus.CANCELLED);
+//        orderRepository.save(order);
+    }
+
+    public List<OrderResponseDTO> sortOrders(Integer customerId, String sortBy, String direction) {
+        Set<String> allowedFields = Set.of("orderId", "orderTime", "orderTotal", "status");
+        if (!allowedFields.contains(sortBy)) {
+            throw new IllegalArgumentException("Invalid sort field: " + sortBy);
+        }
+
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        List<Order> orders;
+        if (customerId != null) {
+            // check customer exists
+            Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException("Customer not found: " + customerId));
+            orders = orderRepository.findByCustomer(customer, sort);
+        } else {
+            orders = orderRepository.findAll(sort);
+        }
+
+        if (orders.isEmpty()) {
+            throw new EntityNotFoundException(customerId != null ? "No orders found for customer with id: " + customerId : "No orders found");
+        }
+
+        return orders.stream().map(order -> orderMapper.orderToOrderResponse(order, orderDetailMapper)).collect(Collectors.toList());
     }
 }

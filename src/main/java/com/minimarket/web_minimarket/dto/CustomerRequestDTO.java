@@ -38,4 +38,14 @@ public class CustomerRequestDTO {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+
+
+    @Override
+    public String toString() {
+        return "CustomerRequestDTO{" +
+                "customerAge=" + customerAge +
+                ", customerName='" + customerName + '\'' +
+                ", userId=" + userId +
+                '}';
+    }
 }

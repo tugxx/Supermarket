@@ -58,4 +58,16 @@ public class OrderDetailResponseDTO {
     public void setProductName(String productName) {
         this.productName = productName;
     }
+
+
+    @Override
+    public String toString() {
+        return "OrderDetailResponseDTO{" +
+                "orderId=" + orderId +
+                ", productId=" + productId +
+                ", productName='" + productName + '\'' +
+                ", orderQuantity=" + orderQuantity +
+                ", orderPrice=" + orderPrice +
+                '}';
+    }
 }

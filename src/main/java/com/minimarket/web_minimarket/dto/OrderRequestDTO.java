@@ -36,4 +36,12 @@ public class OrderRequestDTO {
     public void setOrderDetails(@NotEmpty(message = "Order details cannot be empty") List<OrderDetailRequestDTO> orderDetails) {
         this.orderDetails = orderDetails;
     }
+
+    @Override
+    public String toString() {
+        return "OrderRequestDTO{" +
+                "customerId=" + customerId +
+                ", orderDetails=" + orderDetails +
+                '}';
+    }
 }

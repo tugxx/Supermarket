@@ -18,4 +18,12 @@ public class CategoryRequestDTO {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
+
+    @Override
+    public String toString() {
+        return "CategoryRequestDTO{" +
+                "categoryName='" + categoryName + '\'' +
+                '}';
+    }
 }

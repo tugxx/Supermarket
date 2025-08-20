@@ -96,4 +96,17 @@ public class Product {
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
     }
+
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", productName='" + productName + '\'' +
+                ", productPrice=" + productPrice +
+                ", productQuantity=" + productQuantity +
+                ", \n\tsupplier=" + supplier +
+                ", \n\tcategory=" + category +
+                "}";
+    }
 }

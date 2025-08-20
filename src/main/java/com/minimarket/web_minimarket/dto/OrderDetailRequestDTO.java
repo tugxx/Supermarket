@@ -1,15 +1,17 @@
 package com.minimarket.web_minimarket.dto;
 
+import java.math.BigDecimal;
+
 public class OrderDetailRequestDTO {
     private int orderId;
     private int productId;
     private int orderQuantity;
-    private double orderPrice;
+    private BigDecimal orderPrice;
 
     // Constructors
     public OrderDetailRequestDTO() {}
 
-    public OrderDetailRequestDTO(int orderId, double orderPrice, int orderQuantity, int productId) {
+    public OrderDetailRequestDTO(int orderId, BigDecimal orderPrice, int orderQuantity, int productId) {
         this.orderId = orderId;
         this.orderPrice = orderPrice;
         this.orderQuantity = orderQuantity;
@@ -25,11 +27,11 @@ public class OrderDetailRequestDTO {
         this.orderId = orderId;
     }
 
-    public double getOrderPrice() {
+    public BigDecimal getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(double orderPrice) {
+    public void setOrderPrice(BigDecimal orderPrice) {
         this.orderPrice = orderPrice;
     }
 
@@ -47,5 +49,16 @@ public class OrderDetailRequestDTO {
 
     public void setProductId(int productId) {
         this.productId = productId;
+    }
+
+
+    @Override
+    public String toString() {
+        return "OrderDetailRequestDTO{" +
+                "orderId=" + orderId +
+                ", productId=" + productId +
+                ", orderQuantity=" + orderQuantity +
+                ", orderPrice=" + orderPrice +
+                '}';
     }
 }

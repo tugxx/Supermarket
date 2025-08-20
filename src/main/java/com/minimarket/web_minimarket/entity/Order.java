@@ -41,19 +41,21 @@ public class Order {
     // Constructors
     public Order() {}
 
-    public Order(int orderId, LocalDateTime orderTime, BigDecimal orderTotal, Customer customer, OrderStatus status) {
+    public Order(int orderId, LocalDateTime orderTime, BigDecimal orderTotal, Customer customer, OrderStatus status, List<OrderDetail> orderDetails) {
         this.orderId = orderId;
         this.orderTime = orderTime;
         this.orderTotal = orderTotal;
         this.customer = customer;
         this.status = status;
+        this.orderDetails = orderDetails;
     }
 
-    public Order(Customer customer, BigDecimal orderTotal, LocalDateTime orderTime, OrderStatus status) {
+    public Order(Customer customer, BigDecimal orderTotal, LocalDateTime orderTime, OrderStatus status, List<OrderDetail> orderDetails) {
         this.customer = customer;
         this.orderTotal = orderTotal;
         this.orderTime = orderTime;
         this.status = status;
+        this.orderDetails = orderDetails;
     }
 
     // Getters and setters
@@ -103,5 +105,18 @@ public class Order {
 
     public void setStatus(@NotNull(message = "Order status cannot be null") OrderStatus status) {
         this.status = status;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderId=" + orderId +
+                ", orderTime=" + orderTime +
+                ", orderTotal=" + orderTotal +
+                ", status=" + status +
+                ", \n\tcustomer=" + customer +
+                ", \n\torderDetails=" + orderDetails +
+                '}';
     }
 }

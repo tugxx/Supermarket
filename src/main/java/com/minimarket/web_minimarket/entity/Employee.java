@@ -55,4 +55,14 @@ public class Employee {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "employeeId=" + employeeId +
+                ", employeeName='" + employeeName + '\'' +
+                ", \n\tuser=" + user +
+                "}";
+    }
 }
