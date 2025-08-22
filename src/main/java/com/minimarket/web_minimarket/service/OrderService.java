@@ -10,6 +10,7 @@ import com.minimarket.web_minimarket.exception.ProductNotFoundException;
 import com.minimarket.web_minimarket.mapper.OrderDetailMapper;
 import com.minimarket.web_minimarket.mapper.OrderMapper;
 import com.minimarket.web_minimarket.repository.CustomerRepository;
+import com.minimarket.web_minimarket.repository.OrderDetailRepository;
 import com.minimarket.web_minimarket.repository.OrderRepository;
 import com.minimarket.web_minimarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,15 +30,17 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
+    private final OrderDetailRepository orderDetailRepository;
     private final OrderMapper orderMapper;
     private final OrderDetailMapper orderDetailMapper;
 
-    public OrderService(OrderMapper orderMapper, OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, OrderDetailMapper orderDetailMapper) {
+    public OrderService(OrderMapper orderMapper, OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository, OrderDetailRepository orderDetailRepository, OrderDetailMapper orderDetailMapper) {
         this.orderMapper = orderMapper;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.customerRepository = customerRepository;
         this.orderDetailMapper = orderDetailMapper;
+        this.orderDetailRepository = orderDetailRepository;
     }
 
     @Transactional
@@ -171,8 +173,9 @@ public class OrderService {
 
         // Restore product stock for each OrderDetail
         List<OrderDetail> orderDetails = order.getOrderDetails();
+
         Set<Integer> productIds = orderDetails.stream().map(orderDetail -> orderDetail.getProduct().getProductId()).collect(Collectors.toSet());
-        Map<Integer, Product> productMap = productIds.stream().map(productRepository::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toMap(Product::getProductId, product -> product));
+        Map<Integer, Product> productMap = productRepository.findByProductIdIn(productIds).stream().collect(Collectors.toMap(Product::getProductId, product -> product));
 
         for (OrderDetail orderDetail : orderDetails) {
             Product product = productMap.get(orderDetail.getProduct().getProductId());
@@ -182,19 +185,10 @@ public class OrderService {
 
             product.setProductQuantity(product.getProductQuantity() + orderDetail.getOrderQuantity());
         }
-
         productRepository.saveAll(productMap.values());
 
+        orderDetailRepository.deleteAll(orderDetails);
         orderRepository.delete(order);
-
-//        for (OrderDetail detail : orderDetails) {
-//            Product product = productRepository.findById(detail.getProduct().getProductId()).orElseThrow(() -> new ProductNotFoundException("Product not found: " + detail.getProduct().getProductId()));
-//            product.setProductQuantity(product.getProductQuantity() + detail.getOrderQuantity());
-//            productRepository.save(product);
-//        }
-//
-//        order.setStatus(OrderStatus.CANCELLED);
-//        orderRepository.save(order);
     }
 
     public List<OrderResponseDTO> sortOrders(Integer customerId, String sortBy, String direction) {

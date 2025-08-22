@@ -21,5 +21,8 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     //  WHERE p.product_id = ?;
     Optional<Supplier> getBySupplier_supplierId(int productId);
 
-    List<Product> findByIdIn(Set<Integer> ids);
+//    SELECT *
+//    FROM products
+//    WHERE id IN (?, ?, ?, ...);
+    List<Product> findByProductIdIn(Set<Integer> ids);
 }

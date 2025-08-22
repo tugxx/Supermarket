@@ -31,7 +31,7 @@ public class CategoryResponseDTO {
 
 
     @Override
-    public String toString() {
+    public String  toString() {
         return "CategoryResponseDTO{" +
                 "categoryId=" + categoryId +
                 ", categoryName='" + categoryName + '\'' +

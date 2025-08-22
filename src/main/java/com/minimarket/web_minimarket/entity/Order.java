@@ -30,7 +30,7 @@ public class Order {
     @NotNull(message = "Customer cannot be null")
     private Customer customer;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

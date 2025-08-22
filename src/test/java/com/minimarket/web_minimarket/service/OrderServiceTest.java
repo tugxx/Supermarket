@@ -11,6 +11,7 @@ import com.minimarket.web_minimarket.exception.ProductNotFoundException;
 import com.minimarket.web_minimarket.mapper.OrderDetailMapper;
 import com.minimarket.web_minimarket.mapper.OrderMapper;
 import com.minimarket.web_minimarket.repository.CustomerRepository;
+import com.minimarket.web_minimarket.repository.OrderDetailRepository;
 import com.minimarket.web_minimarket.repository.OrderRepository;
 import com.minimarket.web_minimarket.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,10 +26,7 @@ import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,6 +41,9 @@ public class OrderServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private OrderDetailRepository orderDetailRepository;
 
     @Mock
     private OrderMapper orderMapper;
@@ -167,7 +168,7 @@ public class OrderServiceTest {
 
         orderMapper = Mappers.getMapper(OrderMapper.class);
         orderDetailMapper = Mappers.getMapper(OrderDetailMapper.class);
-        orderService = new OrderService(orderMapper, orderRepository, productRepository, customerRepository, orderDetailMapper);
+        orderService = new OrderService(orderMapper, orderRepository, productRepository, customerRepository, orderDetailRepository, orderDetailMapper);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -539,19 +540,18 @@ public class OrderServiceTest {
     @Test
     void testDeleteOrderById_Success() {
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(productRepository.findById(1)).thenReturn(Optional.of(product));
+        when(productRepository.findByProductIdIn(Set.of(1))).thenReturn(List.of(product));
 
         orderService.deleteOrderById(1);
 
         // Product stock should be restored
         assertEquals(12, product.getProductQuantity());  // 10 + 2
-        // Order status should be updated
-        assertEquals(OrderStatus.CANCELLED, order.getStatus());
 
         verify(orderRepository, times(1)).findById(1);
-        verify(productRepository, times(1)).findById(1);
-        verify(productRepository, times(1)).save(product);
-        verify(orderRepository, times(1)).save(order);
+//        verify(productRepository, times(1)).saveAll(List.of(product));
+        verify(productRepository, times(1)).saveAll(argThat(products -> products.iterator().next().equals(product)));
+        verify(orderRepository, times(1)).delete(order);
+
     }
 
     // -----------------------------------------------------------------------------------------------------------------

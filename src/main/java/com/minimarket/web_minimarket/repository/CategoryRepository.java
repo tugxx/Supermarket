@@ -10,6 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
+//    select *
+//    from categories cate
+//    where cate.category_name = category_name;
     Optional<Category> getByCategoryName(String categoryName);
     List<Product> getProductsByCategoryId(int categoryId);
 }

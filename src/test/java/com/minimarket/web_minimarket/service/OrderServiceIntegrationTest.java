@@ -9,21 +9,18 @@ import com.minimarket.web_minimarket.exception.InsufficientStockException;
 import com.minimarket.web_minimarket.exception.OrderNotFoundException;
 import com.minimarket.web_minimarket.exception.ProductNotFoundException;
 import com.minimarket.web_minimarket.repository.CustomerRepository;
+import com.minimarket.web_minimarket.repository.OrderDetailRepository;
 import com.minimarket.web_minimarket.repository.OrderRepository;
 import com.minimarket.web_minimarket.repository.ProductRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -36,13 +33,10 @@ public class OrderServiceIntegrationTest {
     @Autowired private OrderService orderService;
     @Autowired private OrderRepository orderRepository;
     @Autowired private ProductRepository productRepository;
+    @Autowired private OrderDetailRepository orderDetailRepository;
     @Autowired private CustomerRepository customerRepository;
-    @Autowired private EntityManager entityManager;
-    @Autowired private JdbcTemplate jdbcTemplate;
 
-    private Product product;
     private OrderRequestDTO orderRequest;
-    private Order order;
 
     @BeforeEach
     void setUp() {
@@ -282,30 +276,25 @@ public class OrderServiceIntegrationTest {
 
     @Test
     void deleteOrderById_InvalidOrderId_integration() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            orderService.deleteOrderById(0);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> orderService.deleteOrderById(0));
 
         assertEquals("Order ID must be positive", exception.getMessage());
     }
 
     @Test
     void deleteOrderById_NonExistingOrder_integration() {
-        Exception exception = assertThrows(OrderNotFoundException.class, () -> {
-            orderService.deleteOrderById(7);
-        });
+        Exception exception = assertThrows(OrderNotFoundException.class, () -> orderService.deleteOrderById(7));
 
         assertEquals("Order with ID: 7 not found", exception.getMessage());
     }
 
     @Test
     void deleteOrderById_NonPendingOrder_integration() {
+        Order order = new Order();
         order.setStatus(OrderStatus.CONFIRMED);
-        orderRepository.save(order);
+        Order order1 = orderRepository.save(order);
 
-        Exception exception = assertThrows(IllegalStateException.class, () -> {
-            orderService.deleteOrderById(1);
-        });
+        Exception exception = assertThrows(IllegalStateException.class, () -> orderService.deleteOrderById(order1.getOrderId()));
 
         assertEquals("Cannot delete order with status: CONFIRMED", exception.getMessage());
     }
@@ -314,13 +303,64 @@ public class OrderServiceIntegrationTest {
     void deleteOrderById_SuccessfulDeletion_integration() {
         orderService.deleteOrderById(1);
 
-        Order deletedOrder = orderRepository.findById(1).orElseThrow();
-        assertEquals(OrderStatus.CANCELLED, deletedOrder.getStatus());
+        Optional<Order> deletedOrder = orderRepository.findById(1);
+        assertFalse(deletedOrder.isPresent(), "Order should be deleted");
 
-        Product updatedProduct = productRepository.findById(1).orElseThrow();
-        assertEquals(102, updatedProduct.getProductQuantity()); // 100 + 2
+        List<OrderDetail> remainingOrderDetails = orderDetailRepository.findAll();
+        assertEquals(5, remainingOrderDetails.size());
+
+        List<Product> updatedProducts = productRepository.findAll();
+
+        assertEquals(82, updatedProducts.getFirst().getProductQuantity());
+        assertEquals(61, updatedProducts.get(1).getProductQuantity());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
 
+    @Test
+    void sortOrdersByTotalAsc_integration() {
+        List<OrderResponseDTO> result = orderService.sortOrders(1, "orderTotal", "asc");
+
+        assertThat(result).extracting(OrderResponseDTO::getOrderTotal).containsExactly(BigDecimal.valueOf(90000), BigDecimal.valueOf(120000), BigDecimal.valueOf(1800000));
+    }
+
+    @Test
+    void sortOrdersByTimeDesc_integration() {
+        List<OrderResponseDTO> result = orderService.sortOrders(2, "orderTime", "desc");
+
+        assertThat(result).extracting(OrderResponseDTO::getOrderTime).isSortedAccordingTo(Comparator.reverseOrder());
+    }
+
+    @Test
+    void throwWhenInvalidSortField_integration() {
+        assertThatThrownBy(() -> orderService.sortOrders(1, "invalidField", "asc"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Invalid sort field");
+    }
+
+    @Test
+    void returnAllOrdersWhenCustomerIdNull_integration() {
+        List<OrderResponseDTO> result = orderService.sortOrders(null, "orderId", "asc");
+        assertThat(result).hasSize(6);
+    }
+
+    @Test
+    void throwWhenCustomerHasNoOrders_integration() {
+        Customer emptyCustomer = new Customer();
+        emptyCustomer.setCustomerName("No Orders");
+        emptyCustomer = customerRepository.save(emptyCustomer);
+
+        Integer customerId = emptyCustomer.getCustomerId();
+        assertThatThrownBy(() -> orderService.sortOrders(customerId, "orderId", "asc"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No orders found for customer with id");
+    }
+
+    @Test
+    void throwWhenNoOrdersExistAtAll_integration() {
+        orderRepository.deleteAll();
+        assertThatThrownBy(() -> orderService.sortOrders(null, "orderId", "asc"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("No orders found");
+    }
 }
