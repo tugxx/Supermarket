@@ -37,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn -B -DskipTests=true clean verify \
-            -Dsonar.projectKey=tugxx \
+            -Dsonar.projectKey=tugxx_Supermarket \
             -Dsonar.organization=tugxx \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN \
