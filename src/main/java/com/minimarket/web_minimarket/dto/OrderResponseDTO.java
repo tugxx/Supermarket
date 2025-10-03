@@ -1,6 +1,6 @@
 package com.minimarket.web_minimarket.dto;
 
-import com.minimarket.web_minimarket.entity.Customer;
+// import com.minimarket.web_minimarket.entity.Customer;
 import com.minimarket.web_minimarket.entity.OrderStatus;
 
 import java.math.BigDecimal;
