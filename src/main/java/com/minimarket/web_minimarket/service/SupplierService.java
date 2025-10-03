@@ -3,7 +3,7 @@ package com.minimarket.web_minimarket.service;
 import com.minimarket.web_minimarket.dto.ProductResponseDTO;
 import com.minimarket.web_minimarket.dto.SupplierRequestDTO;
 import com.minimarket.web_minimarket.dto.SupplierResponseDTO;
-import com.minimarket.web_minimarket.entity.Product;
+// import com.minimarket.web_minimarket.entity.Product;
 import com.minimarket.web_minimarket.entity.Supplier;
 import com.minimarket.web_minimarket.mapper.ProductMapper;
 import com.minimarket.web_minimarket.mapper.SupplierMapper;
