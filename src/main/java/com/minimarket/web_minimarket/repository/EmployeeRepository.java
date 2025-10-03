@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     Optional<Employee> getByEmployeeName(String employeeName);
     Optional<Employee> getByUser_UserId(int userId);
-    Optional<User> getByUser_userId(int employeeId);
+    // Optional<User> getByUser_userId(int employeeId);
 }
